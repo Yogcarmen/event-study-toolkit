@@ -26,6 +26,9 @@ def load_prices(tickers: list[str], start: str, end: str,
         cache_dir = Path(cache_dir)
         cache_dir.mkdir(parents=True, exist_ok=True)
         name = '_'.join(t.replace('^', 'IDX').replace('.', '-') for t in tickers)
+        if len(name) > 80:  # keep file names short (Windows path limits)
+            import hashlib
+            name = f'{len(tickers)}tickers_' + hashlib.md5(name.encode()).hexdigest()[:12]
         cache = cache_dir / f'{name}_{start}_{end}.csv'
         if cache.exists():
             return pd.read_csv(cache, index_col=0, parse_dates=True)
